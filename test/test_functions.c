@@ -1,4 +1,5 @@
 #include "test_functions.h"
+#include <math.h>
 
 
 float test_0(float x)
@@ -23,7 +24,7 @@ float test_3(float x)
 
 float test_4(float x)
 {
-  return(ln(x));
+  return(log(x));
 }
 
 float test_5(float x)
