@@ -40,7 +40,7 @@ float function_q1(float x)
 int main(int argc, char **argv)
 {
   interval_s interval_q1={-200.0, 300.0};
-  float precision=10.0E-2;
+  float precision=1.0E-2;
   
   bisect_res result=bisect(function_q1, interval_q1, precision);
 
@@ -121,7 +121,7 @@ bisect_res bisect(function_ptr function, interval_s interval, float precision)
   float y;
   float interval_len=end-start;
   
-  while(interval_len>precision)
+  while(interval_len>=precision)
   {
     y=function(mid);
     f_start=function(start);
