@@ -27,7 +27,7 @@ typedef struct param_node param_func_node;
 struct param_node
 {
   parametric_function function;
-  multivalued_function inverse;
+  multivalued_function *inverse;
   param_func_node *derivative;
 };
 
@@ -51,6 +51,11 @@ typedef struct parameterized_function_entry_list
 
 //####################################### multivariable_function ###############################
 
+typedef struct function_derivative
+{
+  int dn;
+  int *wrt;
+} f_derivative;
 
 typedef f_data_t (*multivariable_function)(int num_inputs, f_data_t *input, f_derivative derivative);
 

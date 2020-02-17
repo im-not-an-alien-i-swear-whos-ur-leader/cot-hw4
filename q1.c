@@ -24,7 +24,7 @@ typedef struct bisection_result
 } bisect_res;
 
 // Prototype for the bisection method. Pass a function to solve and interval for the root.
-bisect_res bisect(param_func_node function, interval_s interval, float precision);
+bisect_res bisect(param_func_node *function_node, interval_s interval, float precision);
 
 // This is the function "x^3 - x^2 + 2" defined in the hw4_function.c file.
 extern param_func_s hw4_function;
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
   interval_s interval_q1={-200.0, 300.0};
   float precision=1.0E-2;
   
-  bisect_res result=bisect(function_q1, interval_q1, precision);
+  bisect_res result=bisect(hw4_function.node, interval_q1, precision);
 
   // NaN is returned if the intermediate value theorem does not apply because
   // f(start) and f(end) are the same sign. In C, NaN!=NaN
@@ -77,11 +77,13 @@ float calculate_mid(float start, float end)
   return((start+end)/2);
 }
 
-bisect_res bisect(function_ptr function, interval_s interval, float precision)
+bisect_res bisect(param_func_node *function_node, interval_s interval, float precision)
 {
   bisect_res result;
   result.num_iterations=0;
 
+  parametric_function function=function_node->function;
+  
   if(interval.start>interval.end)
   {
     // Swap the interval endpoints if they're out of order.
@@ -91,19 +93,19 @@ bisect_res bisect(function_ptr function, interval_s interval, float precision)
   }
 
   // Calculate the function at both endpoints
-  float f_start=function(interval.start);
-  float f_end=function(interval.end);
+  float f_start=function(interval.start, NULL);
+  float f_end=function(interval.end, NULL);
 
   // Check if we already have the answer at one of the interval endpoints.
   // If we already have f(start)==0 or if f(a)*f(a+precision) < 0 return answer.
-  if(f_start==0.0 || ! same_sign(f_start, function(interval.start+precision)))
+  if(f_start==0.0 || ! same_sign(f_start, function(interval.start+precision, NULL)))
   {
     result.root=interval.start;
     return(result);
   }
 
   // Same as above, but use f(end) and f(end-precision)
-  if(f_end==0.0 || ! same_sign(f_end, function(interval.end-precision)))
+  if(f_end==0.0 || ! same_sign(f_end, function(interval.end-precision, NULL)))
   {
     result.root=interval.end;
     return(result);
@@ -134,8 +136,8 @@ bisect_res bisect(function_ptr function, interval_s interval, float precision)
   while(interval_len>=precision)
   {
     // Calculate the start and mid values.
-    y=function(mid);
-    f_start=function(start);
+    y=function(mid, NULL);
+    f_start=function(start, NULL);
 
     // Compare sign of start and midpoint.
     if(same_sign(y, f_start))

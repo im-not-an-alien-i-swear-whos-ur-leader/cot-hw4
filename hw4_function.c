@@ -1,5 +1,6 @@
 // This is a library for generic functions I've already written for other projects.
 #include "generic_functions.h"
+#include <stdlib.h>
 
 /*
   This file defines the function to be used in the homework assignment.
@@ -34,7 +35,7 @@ f_data_t d_dx_hw4_func(f_data_t x, f_data_t * params)
 // Helper struct containing the derivative
 param_func_node hw4_d_dx_node=
 {
-  d_dx_hw4_func,
+  &d_dx_hw4_func,
   NULL, // Inverse. Not used
   NULL // Derivative of this derivative. Not used.
 };
@@ -44,7 +45,7 @@ param_func_node hw4_func_node=
 {
   hw4_func, // Actual function itself.
   NULL,
-  hw4_d_dx_node // Derivative function node.
+  &hw4_d_dx_node // Derivative function node.
 };
 
 // This is just a container struct containing information about
@@ -53,5 +54,5 @@ param_func_s hw4_function=
 {
   "hw4_function",
   0, // No parameters used.
-  hw4_func_node
+  &hw4_func_node
 };
