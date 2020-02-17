@@ -4,9 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "generic_functions.h"
 
-// Define a function pointer to be passed to the bisection method
-typedef float (*function_ptr)(float x);
+// As requested, the commenting is done very liberally on this assignment.
+
 
 // This struct is used to define the interval used in the bisection method.
 typedef struct interval
@@ -23,19 +24,16 @@ typedef struct bisection_result
 } bisect_res;
 
 // Prototype for the bisection method. Pass a function to solve and interval for the root.
-bisect_res bisect(function_ptr function, interval_s interval, float precision);
+bisect_res bisect(param_func_node function, interval_s interval, float precision);
+
+// This is the function "x^3 - x^2 + 2" defined in the hw4_function.c file.
+extern param_func_s hw4_function;
 
 
-float function_q1(float x)
-{
-  // x^3 - x^2 + 2
-  // can be rewritten as: (x-1)*x*x+2
-  return((x-1)*x*x+2);
-}
-
-// When compiling, I have option to either run test code, or to compile the main function to be submitted
-// for this question (q1) of the assignment.
+// When compiling, I have option to either run test code, or to compile the main
+// function to be submitted for this question (q1) of the assignment.
 #ifndef TEST
+
 // Solution for question 1
 int main(int argc, char **argv)
 {
@@ -62,7 +60,9 @@ int main(int argc, char **argv)
 
 int same_sign(float a, float b)
 {
+  // Check if two numbers have the same "sign"
   // This uses 3 different "signs" of 0, +, -
+  // I.e. 0 has a different sign from both positive and negative numbers.
   
   if(a==0.0 || b==0.0)
     return(a==b);
@@ -73,6 +73,7 @@ int same_sign(float a, float b)
 
 float calculate_mid(float start, float end)
 {
+  // Uses the midpoint formula for the middle of an interval.
   return((start+end)/2);
 }
 
@@ -89,16 +90,19 @@ bisect_res bisect(function_ptr function, interval_s interval, float precision)
     interval.end=temp;
   }
 
+  // Calculate the function at both endpoints
   float f_start=function(interval.start);
   float f_end=function(interval.end);
 
   // Check if we already have the answer at one of the interval endpoints.
+  // If we already have f(start)==0 or if f(a)*f(a+precision) < 0 return answer.
   if(f_start==0.0 || ! same_sign(f_start, function(interval.start+precision)))
   {
     result.root=interval.start;
     return(result);
   }
 
+  // Same as above, but use f(end) and f(end-precision)
   if(f_end==0.0 || ! same_sign(f_end, function(interval.end-precision)))
   {
     result.root=interval.end;
@@ -109,7 +113,8 @@ bisect_res bisect(function_ptr function, interval_s interval, float precision)
   // This also covers the case where start==end since they must have the same sign.
   if(same_sign(f_start, f_end))
   {
-    // Return NaN for the root and 0 iterations.
+    // Return NaN for the root and 0 iterations. NaN implies there is no number
+    // where a root occurs.
     result.root=0.0/0.0;
     return(result);
   }
@@ -120,25 +125,45 @@ bisect_res bisect(function_ptr function, interval_s interval, float precision)
   float mid=calculate_mid(start, end);
   float y;
   float interval_len=end-start;
-  
+
+  // Run until the max possible error is not greater than our specified error.
+  // I choose to keep dividing the starting length by 2 instead of the condition
+  // (end-start)>=precision because if end and start are very large compared to
+  // the precision, there will be a significant error due to the machine epsilon
+  // when subtracting. I.e. a small difference between large numbers is a bad idea.
   while(interval_len>=precision)
   {
+    // Calculate the start and mid values.
     y=function(mid);
     f_start=function(start);
 
+    // Compare sign of start and midpoint.
     if(same_sign(y, f_start))
     {
+      // If start and mid have the same sign, a root is only guaranteed in the
+      // interval (mid, end) because of intermediate value theorem.
       start=mid;
     }
     else
     {
+      // If start and end have opposite signs, there is a guarantee that a
+      // root exists in the interval (start, mid). There may also be a root
+      // in (mid, end) if f(mid)*f(end)<0, but I can choose only one root
+      // to calculate at a given time.
       end=mid;
     }
 
+    // Recalculate the new midpoint from the new interval
     mid=calculate_mid(start, end);
+
+    // count another iteration.
     result.num_iterations++;
+
+    // Update the length of the interval.
     interval_len/=2.0;
   }
+
+  // Use our current midpoint as the answer of x where f(x)=0. x is the root.
   result.root=mid;
   return(result);
 }
