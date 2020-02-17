@@ -1,5 +1,9 @@
 
 
+all: q1 q2
+
+all_test: q1test q2test
+
 q1: q1.c
 	gcc -lm -o q1 q1.c
 
