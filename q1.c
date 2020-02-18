@@ -28,7 +28,7 @@ int main(int argc, char **argv)
   // Call bisection function. The ".node" member is a struct containing
   // the function itself, derivatives, and its inverse. For bisection,
   // only the function is used.
-  iter_result result=bisect(hw4_function.node, interval_q1, precision);
+  iter_result result=bisect(hw4_function.node, interval_q1, precision, 0.0);
 
   // NaN is returned if the intermediate value theorem does not apply because
   // f(start) and f(end) are the same sign. In C lang, NaN!=NaN (For gnu runtime at least)

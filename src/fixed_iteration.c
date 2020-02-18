@@ -89,16 +89,22 @@ fixed_pt_param get_fixed_pt_param(param_func_node *function_node, interval_s int
 
   // Next, the smallest point having the opposite sign of the closest y value is selected.
   current=head;
-  coord_s other=head->coord;
-  if(other.x==smallest.x)
+  coord_s other=smallest;
+
+  while(current!=NULL)
   {
+    if(! same_sign(smallest.y-f_x, current->coord.y-f_x))
+    {
+   	other=current->coord;
+    }
     current=current->next;
-    other=current->coord;
   }
+
+  current=head;
   
   while(current!=NULL)
   {
-    if(! same_sign(fabs(smallest.y-f_x), fabs(current->coord.y-f_x)))
+    if(! same_sign(smallest.y-f_x, current->coord.y-f_x))
     {
       if(fabs(current->coord.y-f_x)<fabs(other.y-f_x))
       {
@@ -186,6 +192,7 @@ fixed_pt_param get_fixed_pt_param(param_func_node *function_node, interval_s int
   f_data_t d_a=derivative->function(a, NULL);
   f_data_t d_b=derivative->function(b, NULL);
 
+  f_data_t k=1.0;
 
   if(derivative!=NULL && derivative->derivative!=NULL)
   {
@@ -220,16 +227,25 @@ fixed_pt_param get_fixed_pt_param(param_func_node *function_node, interval_s int
 	
       }// end loop
 
-
+      if(fabs(max_d)<1.0 && fabs(min_d)<1.0)
+      {
+	k=(fabs(max_d)>fabs(min_d))?fabs(min_d):fabs(max_d);
+      }
+      
       // See if we need to adjust scaling to keep derivative between +-1;
+      // Also, scale it a lot (1/2) to make sure we converge quick-ish.
       if(fabs(max_d)>1)
       {
 	scaling=(fabs(max_d)>1.0/scaling)?1.0/fabs(max_d):scaling;
+	scaling/=2.0;
+	k=0.5;
       }
 
       if(fabs(min_d)>1)
       {
       	scaling=(fabs(min_d)>1.0/scaling)?1.0/fabs(min_d):scaling;
+	scaling/=2.0;
+	k=0.5;
       }
       
     }//end if
@@ -241,6 +257,7 @@ fixed_pt_param get_fixed_pt_param(param_func_node *function_node, interval_s int
   result.q=scaling;
   result.r=shift;
   result.p_0=calculate_mid(a, b);
+  result.k=k;
 
   if(fabs(f_a-f_x)<fabs(function(result.p_0, NULL)-f_x))
   {
@@ -307,15 +324,33 @@ iter_result fixed_pt(param_func_node *function_node, interval_s interval, float 
   // p_{n}=p_{n-1}-q*(f(p_{n-1}+r)-f_y)
 
   f_data_t p=parameters.p_0;//calculate_mid(start, end);
-
-  int max_iter=50;
+  f_data_t p_prev;
   
+  int max_iter=5000;
+
+  if(parameters.k<1.0)
+  {
+    f_data_t max_delta=p-start;
+    if((end-p)>max_delta)
+    {
+      max_delta=end-p;
+    }
+
+    // If we know some k where the derivative magnitude is always <=k<1 then
+    // we can use this formula for a bound on num iterations.
+    max_iter=(int)((log(precision/max_delta)/log(parameters.k))/q+0.5);
+  }
+
+  // Just a sanity check to make sure we don't run forever.
+  if(max_iter>20000)
+    max_iter=20000;
+
+
   while(result.num_iterations<max_iter)
   {
-    printf("P: %f\n", p);
-    
+    p_prev=p;
     p=p-q*(function(p+r, NULL)-f_x);
-
+    
     // If abs(p) > 1.0*10^12 assume overflow and just give up...
     if(((p<0.0?-p:p)>1.0E+12))
     {
@@ -323,7 +358,18 @@ iter_result fixed_pt(param_func_node *function_node, interval_s interval, float 
       return(result);
     }
     result.num_iterations++;
+
+
     
+    if(fabs(p_prev-p)/q<precision)
+    {
+      break;
+    }
+  }
+
+  if(result.num_iterations>=max_iter)
+  {
+    result.num_iterations*=-1;
   }
   
   result.root=(p+r);

@@ -26,7 +26,7 @@ int main(int argc, char **argv)
   interval_s interval_q2={-200.0, 300.0};
   float precision=1.0E-2;
 
-  iter_result result=bisect(hw4_function.node, interval_q2, 5.0E+0);// Very low accuracy, just for initial guess
+  iter_result result=bisect(hw4_function.node, interval_q2, 5.0E+0, 0.0);// Very low accuracy, just for initial guess
 
   interval_q2.start=result.interval.start;
   interval_q2.end=result.interval.end;

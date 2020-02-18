@@ -1,7 +1,7 @@
 #include "bisection.h"
 #include <stdlib.h>
 
-iter_result bisect(param_func_node *function_node, interval_s interval, float precision)
+iter_result bisect(param_func_node *function_node, interval_s interval, float precision, f_data_t f_x)
 {
   iter_result result;
   result.num_iterations=0;
@@ -21,14 +21,14 @@ iter_result bisect(param_func_node *function_node, interval_s interval, float pr
 
   // Check if we already have the answer at one of the interval endpoints.
   // If f(a) is 0 or a and a+precision bracket a root, a is a solution
-  if(is_bracket(f_a, function(start+precision, NULL)))
+  if(is_bracket(f_a-f_x, function(start+precision, NULL)-f_x))
   {
     result.root=start;
     return(result);
   }
 
   // Same as above, but use f(b) and f(b-precision)
-  if(is_bracket(f_b, function(end-precision, NULL)))
+  if(is_bracket(f_b-f_x, function(end-precision, NULL)-f_x))
   {
     result.root=end;
     return(result);
@@ -64,7 +64,7 @@ iter_result bisect(param_func_node *function_node, interval_s interval, float pr
     f_start=function(start, NULL);
 
     // See if start and p bracked a solution
-    if(is_bracket(f_p, f_start))
+    if(is_bracket(f_p-f_x, f_start-f_x))
     {
       // start and p bracket a solution. New interval is [start, p]
       // There may also be a root in (p, end) if f(mid)*f(end)<0, but
