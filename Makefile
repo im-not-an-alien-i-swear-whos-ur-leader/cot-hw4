@@ -7,6 +7,10 @@ q1_h_files=include/generic_functions.h helper_functions.h include/bisection.h
 q2_c_files=q2.c src/fixed_iteration.c hw4_function.c helper_functions.c lib/generic_functions.c src/bisection.c
 q2_h_files=include/generic_functions.h helper_functions.h include/fixed_iteration.h include/bisection.h
 
+q3_c_files=q3.c src/newton.c hw4_function.c helper_functions.c lib/generic_functions.c src/bisection.c
+q3_h_files=include/generic_functions.h helper_functions.h include/newton.h include/bisection.h
+
+
 all: q1 q2
 
 all_test: q1test q2test
@@ -24,3 +28,8 @@ q2: $(q2_c_files) $(q2_h_files)
 q2test: test/test_functions.c test/test_functions.h $(q2_c_files) $(q2_h_files)
 	gcc $(DB) -D TEST -o q1test -I include/ -I lib/ -I test/ -I ./ $(q2_c_files) -lm
 
+q3: $(q3_c_files) $(q3_h_files)
+	gcc $(DB) -I lib/ -I include/ -I ./ -o q3 $(q3_c_files) -lm
+
+q3test: test/test_functions.c test/test_functions.h $(q3_c_files) $(q3_h_files)
+	gcc $(DB) -D TEST -o q1test -I include/ -I lib/ -I test/ -I ./ $(q3_c_files) -lm

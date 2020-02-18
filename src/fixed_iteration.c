@@ -134,6 +134,9 @@ fixed_pt_param get_fixed_pt_param(param_func_node *function_node, interval_s int
     return(result);
   }
 
+
+  destroy_coord_list(head);
+  
   interval.start=smallest.x;
   interval.end=other.x;
   interval=sort_endpoints(interval);

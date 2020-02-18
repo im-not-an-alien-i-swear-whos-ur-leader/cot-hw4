@@ -18,7 +18,7 @@ extern param_func_s hw4_function;
 
 
 // When compiling, I have option to either run test code, or to compile the main function to be submitted
-// for nnthis question (q2) of the assignment.
+// for this question (q2) of the assignment.
 #ifndef TEST
 // Solution for question 2
 int main(int argc, char **argv)
