@@ -16,7 +16,7 @@ typedef struct multivalued_result
   f_data_t *vals;
 } multival_data_t;
 
-typedef multival_data_t(*multivalued_function)(f_data_t var, f_data_t *params);
+typedef multival_data_t* (*multivalued_function)(f_data_t var, f_data_t *params);
 
 
 typedef f_data_t (*parametric_function)(f_data_t var, f_data_t *params);
@@ -27,7 +27,7 @@ typedef struct param_node param_func_node;
 struct param_node
 {
   parametric_function function;
-  multivalued_function *inverse;
+  multivalued_function inverse;
   param_func_node *derivative;
 };
 
@@ -80,7 +80,7 @@ typedef struct multivariable_function_entry_list
 
 param_func_s *get_param_function_entry(char *name, param_func_list functions);
 multi_func_s *get_multi_function_entry(char *name, multi_func_list functions);
-
+void destroy_multival_data(multival_data_t *data);
 
 
 #endif

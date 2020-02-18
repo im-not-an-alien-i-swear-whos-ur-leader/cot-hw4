@@ -50,3 +50,13 @@ multi_func_s *get_multi_function_entry(char *name, multi_func_list functions)
 
   return(&unknown_multi_function);
 }
+
+void destroy_multival_data(multival_data_t *data)
+{
+  if(data!=NULL)
+  {
+    free(data->vals);
+    free(data);
+  }
+  return;
+}
