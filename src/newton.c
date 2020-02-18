@@ -1,7 +1,7 @@
 #include "newton.h"
 #include <stdlib.h>
 #include <math.h>
-#include <stdio.h>
+
 
 iter_result newton(param_func_node *function_node, interval_s interval, float precision, f_data_t f_x)
 {
@@ -132,8 +132,6 @@ iter_result newton(param_func_node *function_node, interval_s interval, float pr
   
   while(result.num_iterations<max_iter && fabs(function(p, NULL)-f_x)>precision)
   {
-    printf("p: %f\n", p);
-
     p=p- (function(p, NULL)-f_x)/derivative->function(p, NULL);
 
     if(fabs(p)>1.0E+12)
